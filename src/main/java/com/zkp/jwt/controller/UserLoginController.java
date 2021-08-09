@@ -2,6 +2,9 @@ package com.zkp.jwt.controller;
 
 import com.zkp.jwt.pojo.User;
 import com.zkp.jwt.until.JWTutils;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.websocket.Session;
 
+//@Slf4j
 @RestController
 @RequestMapping("user")
 public class UserLoginController {
@@ -25,7 +29,9 @@ public class UserLoginController {
 
         @GetMapping("login")
         public String login(String username, String password,HttpServletResponse response,HttpServletRequest request) {
+            Logger logger = LoggerFactory.getLogger(UserLoginController.class);
             if (username.equals(realUsername) && password.equals(realPassword)) {
+
                 User u = new User();
                 u.setPassword(password);
                 u.setUsername(username);
@@ -37,7 +43,7 @@ public class UserLoginController {
 
                 return JWTutils.getToken(u);
             }
-
+//            logger.info("nishi");
             return "登录失败！账号或者密码不对！";
         }
 
