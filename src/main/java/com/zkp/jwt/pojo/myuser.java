@@ -3,19 +3,14 @@ package com.zkp.jwt.pojo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-
-    private int id;
-
-
-    private String username;
-
-
-    private String password;
+@ToString
+public class myuser extends User{
+    int id;
+    String username;
 
 }

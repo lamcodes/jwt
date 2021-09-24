@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dingxianginc.authority.server.dao.mapper.DepartmentDAO">
+
+    <sql id="allDepartmentColumnsExceptId">
+        `name`,
+        create_user_id,
+        modify_user_id,
+        modify_time,
+        create_time,
+        code,
+        parentId,
+        level
+    </sql>
+
+    <sql id="allDepartmentColumns">
+        id,
+        <include refid="allDepartmentColumnsExceptId"/>
+    </sql>
+
+    <insert id="addDepartment"
+            parameterType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        INSERT INTO department (
+        <include refid="allDepartmentColumnsExceptId"/>
+        ) VALUES (
+        #{name},
+        #{createUserId},
+        #{createUserId},
+        now(),
+        now(),
+        #{code},
+        #{parentId},
+        #{level}
+        )
+    </insert>
+
+    <delete id="deleteDepartment" parameterType="map">
+        DELETE FROM department
+        <where>
+            id = #{departmentId}
+            <if test="departmentName != null">
+                AND `name` = #{departmentName}
+            </if>
+        </where>
+    </delete>
+
+    <update id="updateDepartment"
+            parameterType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        UPDATE department
+        <set>
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="modifyUserId != null">
+                modify_user_id = #{modifyUserId},
+            </if>
+            <if test="code != null">
+                code = #{code},
+            </if>
+            modify_time = now()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="getDepartment" parameterType="map"
+            resultType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        SELECT
+        <include refid="allDepartmentColumns"/>
+        FROM department
+        <where>
+            <if test="departmentId != null">
+                AND id = #{departmentId}
+            </if>
+            <if test="departmentName != null">
+                AND `name` = #{departmentName}
+            </if>
+        </where>
+    </select>
+
+    <select id="listDepartment" parameterType="map"
+            resultType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        SELECT
+        <include refid="allDepartmentColumns"/>
+        FROM department
+        <where>
+            <if test="dIds != null">
+                AND id IN
+                <foreach collection="dIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="nameBlur != null">
+                AND `name` LIKE CONCAT('%',#{nameBlur},'%' )
+            </if>
+        </where>
+        ORDER BY create_time DESC, modify_time DESC
+        <if test="offset != null and rows != null">
+            LIMIT #{offset}, #{rows}
+        </if>
+    </select>
+
+    <select id="countDepartment" parameterType="map"
+            resultType="java.lang.Long">
+        SELECT
+        count(*)
+        FROM department
+        <where>
+            <if test="dIds != null">
+                AND id IN
+                <foreach collection="dIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="nameBlur != null">
+                AND `name` LIKE CONCAT('%',#{nameBlur},'%' )
+            </if>
+        </where>
+    </select>
+
+    <insert id="addDepartmentUser"
+            parameterType="com.dingxianginc.authority.server.dao.table.DepartmentUserDO">
+        INSERT INTO department_user(
+        department_id,
+        user_id
+        ) VALUES (
+          #{departmentId},
+          #{userId}
+        )
+    </insert>
+
+    <update id="updateDepartmentUser" parameterType="map">
+        update department_user set department_id = #{did} where user_id = #{uid}
+    </update>
+
+    <delete id="deleteDepartmentUser" parameterType="map">
+        DELETE FROM department_user where user_id = #{uid}
+        <if test="did != null">
+            AND department_id = #{did}
+        </if>
+    </delete>
+
+    <select id="getDepartmentUserIds" parameterType="map"
+            resultType="java.lang.Long">
+        SELECT
+        user_id
+        FROM department_user
+        <where>
+            <if test="did != null">
+                AND department_id = #{did}
+            </if>
+        </where>
+    </select>
+
+    <select id="getDepartmentUser" parameterType="map"
+            resultType="com.dingxianginc.authority.server.dao.table.DepartmentUserDO">
+        SELECT
+        id,
+        department_id,
+        user_id
+        FROM department_user
+        <where>
+            <if test="did != null">
+                AND department_id = #{did}
+            </if>
+            <if test="uid != null">
+                AND user_id = #{uid}
+            </if>
+        </where>
+    </select>
+
+    <select id="getDepartmentUsers" parameterType="map"
+            resultType="com.dingxianginc.authority.server.dao.table.DepartmentUserDO">
+        SELECT
+        id,
+        department_id,
+        user_id
+        FROM department_user
+        <where>
+            <if test="dids != null">
+                AND department_id IN
+                <foreach collection="dids" item="did" open="(" close=")"
+                         separator=",">
+                    #{did}
+                </foreach>
+            </if>
+            <if test="did != null">
+                AND department_id = #{did}
+            </if>
+            <if test="uid != null">
+                AND user_id = #{uid}
+            </if>
+        </where>
+    </select>
+    <select id="getAllDepartments"
+            resultType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        select id,
+        <include refid="allDepartmentColumnsExceptId"/>
+        from department
+    </select>
+    <select id="getDepartmentUserList"
+            resultType="com.dingxianginc.authority.server.dao.table.DepartmentUserDO">
+        SELECT
+        department_id departmentId,
+        user_id userId
+        FROM department_user
+    </select>
+    <select id="getRealDepartmentId" resultType="java.lang.Long">
+         SELECT department_id FROM department_user where user_id=#{userId} limit 1
+    </select>
+    <select id="countDepartmentUsers" resultType="java.lang.Integer">
+        select count(1) from department_user where department_id = #{id}
+    </select>
+    <select id="getUserNums"
+            resultType="cn.securitystack.ctucommon.constants.IdCountPair">
+        select department_id id,count(user_id) num from department_user group by department_id
+    </select>
+
+    <select id="getLevelById" resultType="java.lang.Long">
+        select level
+        from department
+        where id=#{id}
+    </select>
+    <select id="getDepartmentsByLevel" resultType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        select
+        <include refid="allDepartmentColumns"></include>
+        from department
+        <where>
+            <if test="level != null">
+                `level` = #{level}
+            </if>
+        </where>
+
+    </select>
+    <select id="getDepartmentBlurById" resultType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        select
+        <include refid="allDepartmentColumns"></include>
+        from department
+        <where>
+            <if test="depId != null">
+                FIND_IN_SET(id, getChild(#{depId}))
+            </if>
+            <if test="nameBlur != null">
+                AND `name` LIKE CONCAT('%',#{nameBlur},'%' )
+            </if>
+        </where>
+
+    </select>
+    <select id="getModifyTimeById" resultType="java.util.Date">
+            select modify_time
+            from department
+            where id = #{id}
+    </select>
+    <select id="getDepartmentIds" resultType="java.lang.Long">
+        select id
+        from department
+        order by id
+                asc
+    </select>
+    <select id="getDepartmentBlurByCode" resultType="com.dingxianginc.authority.server.dao.table.DepartmentDO">
+        select
+        <include refid="allDepartmentColumns"></include>
+        from department
+        <where>
+            <if test="nameBlur != null">
+                 `name` LIKE CONCAT('%',#{nameBlur},'%' )
+            </if>
+            <if test="code!=null">
+                AND `code` LIKE CONCAT('%',#{code},'%')
+            </if>
+        </where>
+    </select>
+
+</mapper>
