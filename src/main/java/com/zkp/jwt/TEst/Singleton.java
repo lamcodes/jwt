@@ -37,7 +37,6 @@ public class Singleton {
     public static void main(String[] args) {
 //单例模式通过枚举类实现 保证线程安全。
         for (int i = 0 ;i<10;i++){
-
             new Thread(()->{
                 Singleton instance = Singleton.getInstance();
              //   Singleton instance = Singleton.getInstace();
